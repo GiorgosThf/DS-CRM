@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    environment {
+        SONAR_SCANNER_HOME = tool 'SonarQubeScanner'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: 'master']],
+                        extensions: [], userRemoteConfigs: [[credentialsId: 'SecretKey', url: 'https://github.com/user/repo.git']])
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+
+        stage('Allure Report') {
+            steps {
+                allure([
+                        includeProperties: false,
+                        reportBuildPolicy: 'ALWAYS',
+                        results: [[path: "target/allure-results"]]
+                ])
+            }
+        }
+    }
+}

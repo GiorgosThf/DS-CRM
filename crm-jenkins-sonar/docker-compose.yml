@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jenkins/jenkins:lts
+    container_name: crm-jenkins
+    ports:
+      - "50000:50000"
+      - "8080:8080"
+
+    networks:
+      - jenkins_sonarqube_network
+
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+    environment:
+      - SONAR_HOST_URL=http://sonarqube:9000
+      - SONAR_LOGIN=admin
+      - SONAR_PASSWORD=admin
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: crm-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://sonarqube-db:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+    networks:
+      - jenkins_sonarqube_network
+
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+
+  sonarqube-db:
+    image: postgres:12-alpine
+    container_name: crm-sonarqube-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    networks:
+      - jenkins_sonarqube_network
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+networks:
+  jenkins_sonarqube_network:
+    driver: bridge
+
+volumes:
+  jenkins_home:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  postgresql_data:
+
