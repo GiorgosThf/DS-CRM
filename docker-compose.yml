@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  crm-app:
+    build: .
+    container_name: crm-app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - crm-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://crm-db:3306/dscrm
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    networks:
+      - crm-network
+
+  crm-db:
+    image: mysql:8.0
+    container_name: crm-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dscrm
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - crm-network
+
+volumes:
+  db-data:
+
+networks:
+  crm-network:
+    driver: bridge
