@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  grafana:
+    container_name: grafana-crm
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: mysecurepassword
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: always
+    networks:
+      - crm-monitoring-net
+      - crm-network
+
+  prometheus:
+    container_name: prometheus-crm
+    image: prom/prometheus:v2.35.0
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
+    networks:
+      - crm-monitoring-net
+      - crm-network
+
+volumes:
+  grafana-storage:
+  prometheus-data:
+
+networks:
+  crm-monitoring-net:
+    driver: bridge
+  crm-network:
+    driver: bridge
