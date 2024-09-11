@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import gr.digital.systems.crm.utils.XMLUtils;
 import java.util.Map;
 import org.apache.commons.lang3.SystemUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.w3c.dom.Document;
@@ -12,11 +12,14 @@ import org.w3c.dom.Document;
 @Configuration
 public class AllureConfig {
 
-	@Value("${site.environment}")
-	private String environment;
+	private final String siteEnvironment;
+	private final String siteName;
 
-	@Value("${site.name}")
-	private String site;
+	@Autowired
+	public AllureConfig(final EnvironmentPropertiesConfig environmentPropertiesConfig) {
+		this.siteEnvironment = environmentPropertiesConfig.getEnvironment();
+		this.siteName = environmentPropertiesConfig.getSite();
+	}
 
 	private static final String ALLURE_DIR_RESULTS =
 			System.getProperty(
@@ -27,8 +30,8 @@ public class AllureConfig {
 		/* Create map containing the information to show in allure environment section */
 		ImmutableMap.Builder<String, String> mapBuilder =
 				new ImmutableMap.Builder<String, String>()
-						.put("Environment", this.environment)
-						.put("Site", this.site)
+						.put("Environment", this.siteEnvironment)
+						.put("Site", this.siteName)
 						.put("URL", "http://localhost:8081");
 
 		Map<String, Map<String, String>> environmentXML =

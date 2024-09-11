@@ -1,6 +1,8 @@
 # Use the official NGINX image
-FROM nginx:alpine
+FROM openresty/openresty:focal
 
+# Install Luarocks to manage Lua packages
+RUN ["luarocks", "install", "lua-resty-jwt"]
 
 # Create the directory for SSL certificates inside the container
 RUN mkdir -p /etc/nginx/ssl
@@ -10,10 +12,10 @@ COPY ./ssl/nginx.crt /etc/nginx/ssl/nginx.crt
 COPY ./ssl/nginx.key /etc/nginx/ssl/nginx.key
 
 # Copy custom Nginx configuration if needed
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 
 # Expose port 443 for HTTPS traffic
 EXPOSE 443
 
 # Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
