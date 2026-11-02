@@ -24,7 +24,7 @@
         <!-- Dependencies versions -->
         <allure.version>2.25.0</allure.version>
         <mockito.version>4.5.1</mockito.version>
-        <guava.version>33.0.0-jre</guava.version>
+        <guava.version>33.7.1-jre</guava.version>
         <!-- Dependencies versions -->
 
         <!-- Plugin versions -->
